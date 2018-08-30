@@ -5,7 +5,9 @@
   "license": "MIT",
   "dependencies": {
     "apollo-server": "^2.0.5",
+    "bcrypt": "^3.0.0",
     "graphql": "^0.13.2",
+    "jsonwebtoken": "^8.3.0",
     "nodemon": "^1.18.4",
     "sequelize": "^4.38.0",
     "sequelize-cli": "^4.1.1",
