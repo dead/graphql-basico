@@ -27,7 +27,7 @@ const typeDefs = gql`
     }
 
     type Query {
-        todos: [Todo]
+        todos: [TodoList]
         users: [User]
     }
 
@@ -38,8 +38,8 @@ const typeDefs = gql`
 
     type Mutation {
         adicionarUser(name: String!, senha: String!): User
-        adicionarTodo(userId: Int!, listId: Int!, value: String!): Todo
-        criarListaTodo(userId: Int!, name: String!): TodoList
+        adicionarTodo(listId: Int!, value: String!): Todo
+        criarListaTodo(name: String!): TodoList
         removerTodo(id: Int!): Boolean
         login(username: String!, senha: String!): AuthPayload
     }
@@ -58,7 +58,9 @@ const isAuthenticated = (next) => {
 // https://www.apollographql.com/docs/apollo-server/essentials/data.html
 const resolvers = {
   Query: {
-    todos: () => db.Todo.findAll(),
+    todos: isAuthenticated((root, args, { user }) => db.TodoList.findAll({where: {
+      userId: user.id
+    }})),
     users: isAuthenticated(() => db.User.findAll())
   },
   Mutation: {
@@ -86,12 +88,12 @@ const resolvers = {
         password: hash
       })
     },
-    criarListaTodo: (root, { userId, name }) => {
+    criarListaTodo: isAuthenticated((root, { name }, { user }) => {
       return db.TodoList.create({
         name: name,
-        userId: userId
+        userId: user.id
       })
-    },
+    }),
     login: async (root, { username, senha }) => {
       const user = await db.User.findOne({where: {name: username}})
       if (!user) {
