@@ -4,7 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     value: DataTypes.STRING
   }, {});
   Todo.associate = function(models) {
-    // associations can be defined here
+    Todo.belongsTo(models.TodoList, { foreignKey: 'todoListId' })
   };
   return Todo;
 };
