@@ -54,3 +54,27 @@ server.listen().then(({ url }) => {
 
 Mais: https://www.apollographql.com/docs/apollo-server/essentials/server.html
 
+### Utilizando um banco de dados com o GraphQL
+
+```bash
+cd server
+yarn add sequelize sequelize-cli sqlite3
+yarn sequelize init
+```
+
+config/config.json
+```json
+{
+  "development": {
+    "storage": "./database.sqlite",
+    "dialect": "sqlite"
+  }
+}
+```
+
+Criar model Todo
+```bash
+yarn sequelize model:generate --name Todo --attributes value:string
+```
+
+

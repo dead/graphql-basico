@@ -6,6 +6,9 @@
   "dependencies": {
     "apollo-server": "^2.0.5",
     "graphql": "^0.13.2",
-    "nodemon": "^1.18.4"
+    "nodemon": "^1.18.4",
+    "sequelize": "^4.38.0",
+    "sequelize-cli": "^4.1.1",
+    "sqlite3": "^4.0.2"
   }
 }
