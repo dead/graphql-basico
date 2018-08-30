@@ -77,4 +77,11 @@ Criar model Todo
 yarn sequelize model:generate --name Todo --attributes value:string
 ```
 
-
+# Materiais
+- https://graphql.org/learn/schema/
+- https://www.howtographql.com/
+- https://www.youtube.com/watch?v=c35bj1AT3X8
+- https://www.youtube.com/watch?v=IvsANO0qZEg
+- https://www.apollographql.com/docs/apollo-server/essentials/server.html
+- https://www.apollographql.com/docs/react/
+- https://www.graphql.com/articles/4-years-of-graphql-lee-byron
