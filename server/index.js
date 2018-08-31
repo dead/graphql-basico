@@ -1,9 +1,11 @@
-const { ApolloServer, gql } = require('apollo-server')
+const { ApolloServer, gql, PubSub } = require('apollo-server')
 const db = require('./models')
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 
 const jwt_secret = 'teste_secret'
+
+const pubsub = new PubSub()
 
 // https://graphql.org/learn/schema/
 const typeDefs = gql`
@@ -43,6 +45,10 @@ const typeDefs = gql`
         removerTodo(id: Int!): Boolean
         login(username: String!, senha: String!): AuthPayload
     }
+
+    type Subscription {
+      userAdicionado: User
+    }
 `
 
 const isAuthenticated = (next) => {
@@ -55,13 +61,15 @@ const isAuthenticated = (next) => {
   }
 }
 
+const USER_ADDED = 'USER_ADDED'
+
 // https://www.apollographql.com/docs/apollo-server/essentials/data.html
 const resolvers = {
   Query: {
     todos: isAuthenticated((root, args, { user }) => db.TodoList.findAll({where: {
       userId: user.id
     }})),
-    users: isAuthenticated(() => db.User.findAll())
+    users: () => db.User.findAll()
   },
   Mutation: {
     adicionarTodo: async (root, args, context, info) => {
@@ -83,10 +91,13 @@ const resolvers = {
       }
 
       const hash = await bcrypt.hash(senha, 8)
-      return db.User.create({
+      const u = await db.User.create({
         name: name,
         password: hash
       })
+
+      pubsub.publish(USER_ADDED, { userAdicionado: u })
+      return u
     },
     criarListaTodo: isAuthenticated((root, { name }, { user }) => {
       return db.TodoList.create({
@@ -106,6 +117,11 @@ const resolvers = {
       }
       const token = await jwt.sign({userId: user.id}, jwt_secret)
       return {user: user, token: token}
+    }
+  },
+  Subscription: {
+    userAdicionado: {
+      subscribe: () => pubsub.asyncIterator([USER_ADDED])
     }
   },
   User: {
@@ -131,7 +147,11 @@ const resolvers = {
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: async ({req}) => {
+  context: async ({ req, connection }) => {
+    if (connection) {
+      return {}
+    }
+
     let user = null
     const authorization = req.headers.authorization
 
@@ -156,7 +176,8 @@ const server = new ApolloServer({
 })
 
 db.sequelize.sync({ force: true }).then(() => {
-  server.listen().then(({ url }) => {
+  server.listen().then(({ url, subscriptionsUrl }) => {
     console.log(`🚀  Server ready at ${url}`)
+    console.log(`🚀  Subscriptions ready at ${subscriptionsUrl}`)
   })
 })
