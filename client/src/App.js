@@ -115,7 +115,7 @@ class App extends Component {
         </div>
         <div>
           <Mutation mutation={MUTATION_CREATE_USER}>
-            {(createUser, { data }) => (
+            {(createUser, { loading, error, data }) => (
               <form
                 onSubmit={e => {
                   e.preventDefault()
@@ -126,7 +126,12 @@ class App extends Component {
               >
                 <input ref={node => { this.inputUsername = node }} placeholder='Usuário' />
                 <input ref={node => { this.inputPassword = node }} placeholder='Senha' />
-                <button type='submit'>Create User</button>
+                {error && <strong>Erro: {error.graphQLErrors.map(({ message }, i) => (
+                  <span key={i}>{message}</span>
+                ))}</strong>}
+                <button type='submit'>
+                  {loading ? 'Criando...' : 'Create User'}
+                </button>
               </form>
             )}
           </Mutation>
