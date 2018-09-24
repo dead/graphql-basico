@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import logo from './logo.svg'
 import './App.css'
 
-import { ApolloProvider, Query } from 'react-apollo'
+import { ApolloProvider, Query, Mutation } from 'react-apollo'
 import ApolloClient from 'apollo-client'
 
 import { split } from 'apollo-link'
@@ -43,6 +43,14 @@ const QUERY_LIST_USERS = gql`
 query ListarUsuarios {
   users {
     name
+  }
+}
+`
+
+const MUTATION_CREATE_USER = gql`
+mutation CriarUsuario($name: String!, $senha: String!) {
+  adicionarUser(name: $name, senha: $senha) {
+    id
   }
 }
 `
@@ -90,6 +98,9 @@ class ListaUsuarios extends Component {
 // }}
 
 class App extends Component {
+  inputUsername = null;
+  inputPassword = null;
+
   render () {
     return (
       <ApolloProvider client={client}>
@@ -101,6 +112,24 @@ class App extends Component {
           <p className='App-intro'>
           To get started, edit <code>src/App.js</code> and save to reload.
           </p>
+        </div>
+        <div>
+          <Mutation mutation={MUTATION_CREATE_USER}>
+            {(createUser, { data }) => (
+              <form
+                onSubmit={e => {
+                  e.preventDefault()
+                  createUser({ variables: { name: this.inputUsername.value, senha: this.inputPassword.value } })
+                  this.inputUsername.value = ''
+                  this.inputPassword.value = ''
+                }}
+              >
+                <input ref={node => { this.inputUsername = node }} placeholder='Usuário' />
+                <input ref={node => { this.inputPassword = node }} placeholder='Senha' />
+                <button type='submit'>Create User</button>
+              </form>
+            )}
+          </Mutation>
         </div>
         <div>
           <ul>
